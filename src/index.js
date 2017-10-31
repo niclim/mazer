@@ -7,5 +7,5 @@ import setupGameLoop from './loop'
 const gameInstance = new Game()
 const renderEngine = new Renderer(gameInstance)
 
-setupEventListeners(gameInstance)
+setupEventListeners(renderEngine)
 setupGameLoop(gameInstance, renderEngine)
