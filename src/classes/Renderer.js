@@ -14,10 +14,16 @@ class Renderer {
 
   handleClick(e) {
     // this calculates the thing to be clicked and then handles the click on that item
+    // passes informaiton about click location, what was clicked which game then handles 
+    this.game.handleClick(e)
   }
 
   windowResize() {
     this.dimensions = calculateDimensions()
+  }
+
+  render() {
+    
   }
 }
 

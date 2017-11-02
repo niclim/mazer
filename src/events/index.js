@@ -5,6 +5,7 @@ const setupEventListeners = (renderer) => {
 
   document.addEventListener('keydown', () => {
     // can update the camera position here
+    // or hotkeys
   })
 
   // Update window resize
