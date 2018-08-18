@@ -6,9 +6,11 @@
   "author": "Nicholas <nicholaslim49@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "npm run build; node server/index.js",
-    "dev": "webpack --watch --config webpack.dev.js | nodemon server/index.js | npm run test:watch",
-    "build": "webpack --config webpack.prod.js",
+    "start": "yarn run build; yarn run server",
+    "server": "node server/index.js",
+    "server:watch": "nodemon server/index.js",
+    "build:watch": "webpack --mode development --watch --config webpack.dev.js",
+    "build": "webpack --mode production --config webpack.prod.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -23,7 +25,8 @@
     "babel-preset-env": "^1.6.1",
     "jest": "^21.2.1",
     "nodemon": "^1.12.1",
-    "webpack": "^3.8.1",
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.0"
   }
 }
