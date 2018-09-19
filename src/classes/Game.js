@@ -1,15 +1,15 @@
 class Game {
-  constructor() {
+  constructor () {
     this.monsters = []
     this.blocks = []
     this.clickState = null
   }
 
-  handleClick(e) {
+  handleClick (e) {
     
   }
 
-  runCycle(dt) {
+  runCycle (dt) {
     
   }
 }
