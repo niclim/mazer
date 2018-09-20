@@ -12,9 +12,8 @@ const setupEventListeners = renderer => {
         const key = e.key.replace(/^Arrow/, '').toLowerCase()
         renderer.handleKeyUpdate({ [key]: true })
         break
+      // hotkeys would be added here
     }
-
-    // or hotkeys
   })
 
   document.addEventListener('keyup', e => {
