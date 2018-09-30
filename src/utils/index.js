@@ -1,7 +1,3 @@
-export const calculateDimensions = () => {
-  return { width: window.innerWidth, height: window.innerHeight }
-}
-
 // helper function to constrain camera to side
 // could go to bottom right and it will show black, will need to fix this
 export const constrainToBoundary = (direction) => (val, GAME_CONTAINER) =>

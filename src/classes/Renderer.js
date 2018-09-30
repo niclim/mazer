@@ -1,11 +1,15 @@
-import { calculateDimensions, constrainToBoundary } from '../utils'
-import { GAME_CONTAINER } from '../constants'
+import { constrainToBoundary } from '../utils'
+import { calculateDimensions } from '../utils/dom'
+import { GAME_CONTAINER, CAMERA_SPEED } from '../constants'
+// We need an image that spans the width of the game container and that is partially rendered
 /**
  * The Renderer handles all the rendering and UI interactions
  * it communicates with a game instance and will dispatch
  * actions to the game
  *
  * Event handlers are attached on page load which triggers Renderer events
+ *
+ * Our reference point of 0, 0 refers to the top left corner (which means y is opposite)
  */
 class Renderer {
   constructor (game) {
@@ -24,12 +28,16 @@ class Renderer {
       down: false
     }
 
-    this.canvas = document.getElementById('game')
+    this.canvas = document.createElement('canvas')
     this.context = this.canvas.getContext('2d')
     this.canvasElements = []
+
+    // Set stuff for the canvas
+    this.canvas.id = 'game'
+    document.querySelector('body').appendChild(this.canvas)
   }
 
-  handleClick = (e) => {
+  handleClick = e => {
     // this calculates the thing to be clicked and then handles the click on that item
     // passes informaiton about click location, what was clicked which game then handles
     // translate this in to the actual location on the board
@@ -40,22 +48,33 @@ class Renderer {
     this.dimensions = calculateDimensions()
   }
 
-  updateCoordinates = ({ dx, dy }) => {
+  _updateCoordinates = ({ dx, dy }) => {
     const { x, y } = this.coordinates
     // update on input
     this.coordinates = {
-      x: constrainToBoundary('WIDTH')(x + dx),
-      y: constrainToBoundary('HEIGHT')(y + dy)
+      x: constrainToBoundary('WIDTH')(x + dx, GAME_CONTAINER),
+      y: constrainToBoundary('HEIGHT')(y + dy, GAME_CONTAINER)
     }
   }
 
-  updateCameraPosition = (dt) => {
-    // call shit here
-    // to update this camera position
+  updateCameraPosition = dt => {
+    let dx = 0
+    let dy = 0
+    if (this.keysPressed.up) dy--
+    if (this.keysPressed.down) dy++
+    if (this.keysPressed.left) dx--
+    if (this.keysPressed.right) dx++
+
+    dx *= CAMERA_SPEED * dt
+    dy *= CAMERA_SPEED * dt
+    this._updateCoordinates({ dx, dy })
   }
 
-  handleKeyUpdate = key => {
-    // merge diffs and update
+  handleKeyUpdate = keysToUpdate => {
+    this.keysPressed = {
+      ...this.keysPressed,
+      ...keysToUpdate
+    }
   }
 
   render = () => {

@@ -1,7 +1,8 @@
+/* eslint-env jest */
 import Game from '../../src/classes/Game'
 
 describe('Game', () => {
-  test('hi', () => {
-    
+  test('works', () => {
+
   })
 })
