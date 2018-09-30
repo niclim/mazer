@@ -34,7 +34,7 @@ class Renderer {
 
     // Set stuff for the canvas
     this.canvas.id = 'game'
-    document.querySelector('body').appendChild(this.canvas)
+    document.querySelector('body').prepend(this.canvas)
   }
 
   handleClick = e => {

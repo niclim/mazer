@@ -1,4 +1,13 @@
 {
-  "presets": ["env"],
-  "plugins": ["transform-class-properties"]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "shippedProposals": true
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-proposal-class-properties"
+  ]
 }
