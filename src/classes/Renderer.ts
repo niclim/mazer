@@ -1,14 +1,9 @@
-import { constrainToBoundary } from "../utils";
+import { getBackgroundTile } from "../background";
+import { constrainToBoundary, constrainToGameBlock } from "../utils";
 import { calculateDimensions } from "../utils/dom";
-import { GAME_CONTAINER, CAMERA_SPEED } from "../constants";
+import { GAME_CONTAINER, CAMERA_SPEED, BLOCK_SIZE } from "../constants";
 import Game from "./Game";
-import { Dimensions } from "../types";
-// We need an image that spans the width of the game container and that is partially rendered
-
-type Coordinates = {
-  x: number;
-  y: number;
-};
+import { Dimensions, Coordinates } from "../types";
 
 type KeysPress = {
   up: boolean;
@@ -37,6 +32,7 @@ class Renderer {
   canvasElements: any[];
   constructor(game: Game) {
     this.game = game;
+    // dimensions refers to the canvas container size (which is defined by window size)
     this.dimensions = calculateDimensions();
     // Center the camera in the middle of the container
     this.coordinates = {
@@ -103,10 +99,26 @@ class Renderer {
   render = () => {
     // render a single board
     // render the background
+    this.renderBackground();
   };
 
   renderBackground = () => {
-    // renders backgroudn with respect to coordinates
+    // Get top left -> render in viewport
+    const { x, y } = constrainToGameBlock(this.coordinates);
+    // render top left tile to bottom right (adding an extra)
+    for (let i = 0; i <= GAME_CONTAINER.WIDTH / BLOCK_SIZE; i++) {
+      for (let j = 0; j <= GAME_CONTAINER.HEIGHT / BLOCK_SIZE; j++) {
+        const tile = getBackgroundTile(i + x / BLOCK_SIZE, j + y / BLOCK_SIZE);
+        // TODO change this to add in an image
+        this.context.fillStyle = tile.color;
+        this.context.fillRect(
+          i * BLOCK_SIZE,
+          j * BLOCK_SIZE,
+          BLOCK_SIZE,
+          BLOCK_SIZE
+        );
+      }
+    }
   };
 
   renderElement = () => {

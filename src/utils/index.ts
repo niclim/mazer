@@ -1,10 +1,26 @@
+import { BLOCK_SIZE } from "../constants";
+import { Coordinates } from "../types";
 // helper function to constrain camera to side
 // could go to bottom right and it will show black, will need to fix this
-export const constrainToBoundary = (direction) => (val, GAME_CONTAINER) =>
-  Math.min(Math.max(val, 0), GAME_CONTAINER[direction]);
+// TODO fix typing here
+export const constrainToBoundary = (direction) => (
+  val: number,
+  GAME_CONTAINER
+) => Math.min(Math.max(val, 0), GAME_CONTAINER[direction]);
 
-export const debounce = (func, wait, immediate = false) => {
-  let timeout;
+const _getClosestBlockSize = (n: number) => n - (n % BLOCK_SIZE);
+
+export const constrainToGameBlock = ({ x, y }: Coordinates): Coordinates => ({
+  x: _getClosestBlockSize(x),
+  y: _getClosestBlockSize(y),
+});
+
+export const debounce = (
+  func: Function,
+  wait: number,
+  immediate: boolean = false
+) => {
+  let timeout: NodeJS.Timer;
   return (...args) => {
     const later = () => {
       timeout = null;
