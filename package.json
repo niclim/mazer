@@ -6,7 +6,7 @@
   "author": "Nicholas <nicholaslim49@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": "^12.16.1"
+    "node": "^10.16.3"
   },
   "scripts": {
     "start": "yarn run build; yarn run server",
