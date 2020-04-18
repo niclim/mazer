@@ -19,15 +19,23 @@
     "express": "^4.16.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/preset-env": "^7.1.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.6.0",
-    "babel-loader": "^8.0.4",
-    "jest": "23.6.0",
-    "jest-canvas-mock": "^1.1.0",
-    "nodemon": "^1.12.1",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-jest": "^25.3.0",
+    "husky": "^4.2.5",
+    "jest": "^25.3.0",
+    "jest-canvas-mock": "^2.2.0",
+    "nodemon": "^2.0.3",
+    "prettier": "2.0.4",
+    "pretty-quick": "^2.0.1",
+    "source-map-loader": "^0.2.4",
+    "ts-jest": "^25.4.0",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.0"
@@ -36,5 +44,10 @@
     "setupFiles": [
       "jest-canvas-mock"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }

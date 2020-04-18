@@ -1,4 +1,4 @@
 export const calculateDimensions = () => ({
   width: 600,
-  height: 500
-})
+  height: 500,
+});

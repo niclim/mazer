@@ -1,4 +1,4 @@
 /* eslint-env jest */
 export default () => ({
-  handleClick: jest.fn()
-})
+  handleClick: jest.fn(),
+});
