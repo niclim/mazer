@@ -19,6 +19,10 @@ jobs:
         uses: borales/actions-yarn@v2.0.0
         with:
           cmd: install
+      - name: Run linting
+        uses: borales/actions-yarn@v2.0.0
+        with:
+          cmd: run lint
       - name: Run unit tests
         uses: borales/actions-yarn@v2.0.0
         with:
