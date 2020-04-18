@@ -5,6 +5,9 @@
   "repository": "",
   "author": "Nicholas <nicholaslim49@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": "^10.16.3"
+  },
   "scripts": {
     "start": "yarn run build; yarn run server",
     "server": "node server/index.js",
@@ -13,7 +16,8 @@
     "build": "webpack --mode production --config webpack.prod.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "lint": "tslint -c tslint.json src/**/*.ts"
   },
   "dependencies": {
     "express": "^4.16.2"
@@ -39,11 +43,6 @@
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.0"
-  },
-  "jest": {
-    "setupFiles": [
-      "jest-canvas-mock"
-    ]
   },
   "husky": {
     "hooks": {

@@ -9,8 +9,10 @@ class Game {
     this.clickState = null;
   }
 
+  // tslint:disable-next-line
   handleClick(e) {}
 
+  // tslint:disable-next-line
   runCycle(dt) {}
 }
 

@@ -10,7 +10,7 @@ jest.mock("../../src/utils/dom");
 describe("Renderer", () => {
   let mockGame, renderer;
   beforeEach(() => {
-    mockGame = MockGameGenerator();
+    mockGame = new MockGameGenerator();
     renderer = new Renderer(mockGame);
   });
 
