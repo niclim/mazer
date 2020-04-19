@@ -2,9 +2,13 @@
   "compilerOptions": {
     "outDir": "./public",
     "allowJs": true,
-    "target": "es5"
+    "target": "es5",
+    "baseUrl": ".",
+    "paths": {
+      "<src>/*": ["./src/*"]
+    }
   },
   "lib": ["es2015"],
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "**/*.test.*", "**/*.spec.*", "**/__tests__/**/*"],
   "exclude": ["**/__mocks__/*"]
 }

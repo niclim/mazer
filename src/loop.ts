@@ -1,4 +1,7 @@
-const setupGameLoop = (game, renderer) => {
+import Game from "<src>/classes/Game";
+import Renderer from "<src>/classes/Renderer";
+
+const setupGameLoop = (game: Game, renderer: Renderer): void => {
   let lastTime = Date.now();
 
   const loop = () => {

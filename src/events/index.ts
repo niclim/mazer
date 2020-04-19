@@ -1,4 +1,4 @@
-import { debounce } from "../utils";
+import debounce from "lodash.debounce";
 
 const setupEventListeners = (renderer) => {
   document.addEventListener("click", renderer.handleClick);

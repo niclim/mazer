@@ -1,4 +1,3 @@
-/* eslint-env jest */
 import { calculateDimensions } from "../../src/utils/dom";
 
 describe("utils", () => {
