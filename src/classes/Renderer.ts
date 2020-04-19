@@ -1,9 +1,9 @@
-import { getBackgroundTile } from "../background";
-import { constrainToBoundary, constrainToGameBlock } from "../utils";
-import { calculateDimensions } from "../utils/dom";
-import { GAME_CONTAINER, CAMERA_SPEED, BLOCK_SIZE } from "../constants";
-import Game from "./Game";
-import { Dimensions, Coordinates } from "../types";
+import { getBackgroundTile } from "<src>/background";
+import { constrainToBoundary, constrainToGameBlock } from "<src>/utils";
+import { calculateDimensions } from "<src>/utils/dom";
+import { GAME_CONTAINER, CAMERA_SPEED, BLOCK_SIZE } from "<src>/constants";
+import Game from "<src>/classes/Game";
+import { Dimensions, Coordinates, Dimension } from "<src>/types";
 
 type KeysPress = {
   up: boolean;
@@ -36,8 +36,8 @@ class Renderer {
     this.dimensions = calculateDimensions();
     // Center the camera in the middle of the container
     this.coordinates = {
-      x: (GAME_CONTAINER.WIDTH - this.dimensions.width) / 2,
-      y: (GAME_CONTAINER.HEIGHT - this.dimensions.height) / 2,
+      x: (GAME_CONTAINER.width - this.dimensions.width) / 2,
+      y: (GAME_CONTAINER.height - this.dimensions.height) / 2,
     };
 
     this.keysPressed = {
@@ -56,7 +56,7 @@ class Renderer {
     document.querySelector("body").prepend(this.canvas);
   }
 
-  handleClick = (e) => {
+  handleClick = (e: MouseEvent) => {
     // this calculates the thing to be clicked and then handles the click on that item
     // passes informaiton about click location, what was clicked which game then handles
     // translate this in to the actual location on the board
@@ -67,16 +67,16 @@ class Renderer {
     this.dimensions = calculateDimensions();
   };
 
-  _updateCoordinates = ({ dx, dy }) => {
+  _updateCoordinates = ({ x: dx, y: dy }: Coordinates) => {
     const { x, y } = this.coordinates;
     // update on input
     this.coordinates = {
-      x: constrainToBoundary("WIDTH")(x + dx, GAME_CONTAINER),
-      y: constrainToBoundary("HEIGHT")(y + dy, GAME_CONTAINER),
+      x: constrainToBoundary(Dimension.WIDTH)(x + dx, GAME_CONTAINER),
+      y: constrainToBoundary(Dimension.HEIGHT)(y + dy, GAME_CONTAINER),
     };
   };
 
-  updateCameraPosition = (dt) => {
+  updateCameraPosition = (dt: number) => {
     let dx = 0;
     let dy = 0;
     if (this.keysPressed.up) dy--;
@@ -86,10 +86,10 @@ class Renderer {
 
     dx *= CAMERA_SPEED * dt;
     dy *= CAMERA_SPEED * dt;
-    this._updateCoordinates({ dx, dy });
+    this._updateCoordinates({ x: dx, y: dy });
   };
 
-  handleKeyUpdate = (keysToUpdate) => {
+  handleKeyUpdate = (keysToUpdate: KeysPress) => {
     this.keysPressed = {
       ...this.keysPressed,
       ...keysToUpdate,
@@ -106,8 +106,8 @@ class Renderer {
     // Get top left -> render in viewport
     const { x, y } = constrainToGameBlock(this.coordinates);
     // render top left tile to bottom right (adding an extra)
-    for (let i = 0; i <= GAME_CONTAINER.WIDTH / BLOCK_SIZE; i++) {
-      for (let j = 0; j <= GAME_CONTAINER.HEIGHT / BLOCK_SIZE; j++) {
+    for (let i = 0; i <= GAME_CONTAINER.width / BLOCK_SIZE; i++) {
+      for (let j = 0; j <= GAME_CONTAINER.height / BLOCK_SIZE; j++) {
         const tile = getBackgroundTile(i + x / BLOCK_SIZE, j + y / BLOCK_SIZE);
         // TODO change this to add in an image
         this.context.fillStyle = tile.color;

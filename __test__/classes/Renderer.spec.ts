@@ -1,9 +1,8 @@
-/* eslint-env jest */
-import Renderer from "../../src/classes/Renderer";
-import MockGameGenerator from "../../src/classes/Game";
-import { CAMERA_SPEED } from "../../src/constants";
-jest.mock("../../src/classes/Game");
-jest.mock("../../src/utils/dom");
+import Renderer from "<src>/classes/Renderer";
+import MockGameGenerator from "<src>/classes/Game";
+import { CAMERA_SPEED } from "<src>/constants";
+jest.mock("<src>/classes/Game");
+jest.mock("<src>/utils/dom");
 
 // also need to mock dom specific stuff - move dom specific functions to its own file
 

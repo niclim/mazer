@@ -1,8 +1,8 @@
-import Game from "./classes/Game";
-import Renderer from "./classes/Renderer";
+import Game from "<src>/classes/Game";
+import Renderer from "<src>/classes/Renderer";
 
-import setupEventListeners from "./events";
-import setupGameLoop from "./loop";
+import setupEventListeners from "<src>/events";
+import setupGameLoop from "<src>/loop";
 
 const gameInstance = new Game();
 const renderEngine = new Renderer(gameInstance);

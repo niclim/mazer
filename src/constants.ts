@@ -1,7 +1,9 @@
+import { Dimensions } from "<src>/types";
+
 // Size of the entire game
-export const GAME_CONTAINER = {
-  WIDTH: 500,
-  HEIGHT: 1000,
+export const GAME_CONTAINER: Dimensions = {
+  width: 500,
+  height: 1000,
 };
 
 // Size of each "block"
