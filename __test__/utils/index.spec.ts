@@ -1,10 +1,22 @@
 import { BLOCK_SIZE } from "<src>/constants";
-import { constrainToBoundary, constrainToGameBlock } from "<src>/utils";
-import { Dimension } from "<src>/types";
+import { Dimension } from "<src>/enums";
+import {
+  boundNumberToMinMax,
+  constrainToBoundary,
+  constrainToGameBlock,
+} from "<src>/utils";
 
 describe("utils", () => {
+  describe("boundNumberToMinMax", () => {
+    test("constrains a number to a min or maximum", () => {
+      expect(boundNumberToMinMax(2, 1, 3)).toBe(2);
+      expect(boundNumberToMinMax(0, 1, 3)).toBe(1);
+      expect(boundNumberToMinMax(4, 1, 3)).toBe(3);
+    });
+  });
+
   describe("constrainToBoundary", () => {
-    const directions = [Dimension.HEIGHT, Dimension.WIDTH];
+    const directions = [Dimension.Height, Dimension.Width];
     const GAME_CONTAINER = {
       height: 100,
       width: 200,

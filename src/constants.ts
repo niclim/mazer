@@ -10,3 +10,7 @@ export const GAME_CONTAINER: Dimensions = {
 export const BLOCK_SIZE = 10;
 
 export const CAMERA_SPEED = 40;
+
+export const MAX_ZOOM = 16;
+
+export const INIT_ZOOM = 4;

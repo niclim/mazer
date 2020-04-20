@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./public",
+    "esModuleInterop": true,
     "allowJs": true,
     "target": "es5",
     "baseUrl": ".",

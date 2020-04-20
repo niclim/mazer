@@ -1,11 +1,22 @@
 import { getBackgroundTile } from "<src>/background";
-import { constrainToBoundary, constrainToGameBlock } from "<src>/utils";
+import {
+  boundNumberToMinMax,
+  constrainToBoundary,
+  constrainToGameBlock,
+} from "<src>/utils";
 import { calculateDimensions } from "<src>/utils/dom";
-import { GAME_CONTAINER, CAMERA_SPEED, BLOCK_SIZE } from "<src>/constants";
+import {
+  GAME_CONTAINER,
+  CAMERA_SPEED,
+  BLOCK_SIZE,
+  MAX_ZOOM,
+  INIT_ZOOM,
+} from "<src>/constants";
 import Game from "<src>/classes/Game";
-import { Dimensions, Coordinates, Dimension } from "<src>/types";
+import { Dimensions, Coordinates } from "<src>/types";
+import { Dimension, ZoomChange } from "<src>/enums";
 
-type KeysPress = {
+export type KeysPress = {
   up: boolean;
   left: boolean;
   right: boolean;
@@ -28,6 +39,7 @@ class Renderer {
   keysPressed: KeysPress;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
+  zoomLevel: number;
   // TODO - define this typing better
   canvasElements: any[];
   constructor(game: Game) {
@@ -50,6 +62,7 @@ class Renderer {
     this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
     this.canvasElements = [];
+    this.zoomLevel = INIT_ZOOM;
 
     // Set stuff for the canvas
     this.canvas.id = "game";
@@ -71,8 +84,8 @@ class Renderer {
     const { x, y } = this.coordinates;
     // update on input
     this.coordinates = {
-      x: constrainToBoundary(Dimension.WIDTH)(x + dx, GAME_CONTAINER),
-      y: constrainToBoundary(Dimension.HEIGHT)(y + dy, GAME_CONTAINER),
+      x: constrainToBoundary(Dimension.Width)(x + dx, GAME_CONTAINER),
+      y: constrainToBoundary(Dimension.Height)(y + dy, GAME_CONTAINER),
     };
   };
 
@@ -89,6 +102,14 @@ class Renderer {
     this._updateCoordinates({ x: dx, y: dy });
   };
 
+  handleZoom = (zoomChange: ZoomChange) => {
+    const newZoom =
+      zoomChange === ZoomChange.Increase
+        ? this.zoomLevel * 2
+        : this.zoomLevel / 2;
+    this.zoomLevel = boundNumberToMinMax(newZoom, 1, MAX_ZOOM);
+  };
+
   handleKeyUpdate = (keysToUpdate: KeysPress) => {
     this.keysPressed = {
       ...this.keysPressed,
@@ -99,6 +120,7 @@ class Renderer {
   render = () => {
     // render a single board
     // render the background
+    this.context.scale(this.zoomLevel, this.zoomLevel);
     this.renderBackground();
   };
 
