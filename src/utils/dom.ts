@@ -1,5 +1,5 @@
 import { Dimensions } from "<src>/types";
 
-export const calculateDimensions = (): Dimensions => {
+export const calculateCanvasDimensions = (): Dimensions => {
   return { width: window.innerWidth, height: window.innerHeight };
 };

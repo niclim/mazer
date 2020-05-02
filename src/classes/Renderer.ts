@@ -1,27 +1,18 @@
-import { getBackgroundTile } from "<src>/background";
-import {
-  boundNumberToMinMax,
-  constrainToBoundary,
-  constrainToGameBlock,
-} from "<src>/utils";
-import { calculateDimensions } from "<src>/utils/dom";
-import {
-  GAME_CONTAINER,
-  CAMERA_SPEED,
-  BLOCK_SIZE,
-  MAX_ZOOM,
-  INIT_ZOOM,
-} from "<src>/constants";
-import Game from "<src>/classes/Game";
+import { boundNumberToMinMax } from "<src>/utils";
+import { calculateCanvasDimensions } from "<src>/utils/dom";
+import { CAMERA_SPEED, MAX_ZOOM, INIT_ZOOM } from "<src>/constants";
+import Game, { GridState } from "<src>/classes/Game";
 import { Dimensions, Coordinates } from "<src>/types";
-import { Dimension, ZoomChange } from "<src>/enums";
+import { ZoomChange } from "<src>/enums";
 
 export type KeysPress = {
-  up: boolean;
-  left: boolean;
-  right: boolean;
-  down: boolean;
+  up?: boolean;
+  left?: boolean;
+  right?: boolean;
+  down?: boolean;
 };
+
+const BASE_TILE_SIZE = 25;
 
 /**
  * The Renderer handles all the rendering and UI interactions
@@ -34,23 +25,16 @@ export type KeysPress = {
  */
 class Renderer {
   game: Game;
-  dimensions: Dimensions;
-  coordinates: Coordinates;
+  canvasDimensions: Dimensions;
+  cameraPosition: Coordinates;
   keysPressed: KeysPress;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   zoomLevel: number;
-  // TODO - define this typing better
-  canvasElements: any[];
   constructor(game: Game) {
     this.game = game;
     // dimensions refers to the canvas container size (which is defined by window size)
-    this.dimensions = calculateDimensions();
-    // Center the camera in the middle of the container
-    this.coordinates = {
-      x: (GAME_CONTAINER.width - this.dimensions.width) / 2,
-      y: (GAME_CONTAINER.height - this.dimensions.height) / 2,
-    };
+    this.canvasDimensions = calculateCanvasDimensions();
 
     this.keysPressed = {
       up: false,
@@ -61,8 +45,22 @@ class Renderer {
 
     this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
-    this.canvasElements = [];
+    // We actually need to set the canvas dimensions programatically - otherwise the canvas just scales
+    this.canvas.width = this.canvasDimensions.width;
+    this.canvas.height = this.canvasDimensions.height;
     this.zoomLevel = INIT_ZOOM;
+
+    // Center the camera in the middle of the container
+    this._updateCameraPosition({
+      x:
+        (this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel -
+          this.canvasDimensions.width) /
+        2,
+      y:
+        (this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel -
+          this.canvasDimensions.height) /
+        2,
+    });
 
     // Set stuff for the canvas
     this.canvas.id = "game";
@@ -77,19 +75,34 @@ class Renderer {
   };
 
   windowResize = () => {
-    this.dimensions = calculateDimensions();
+    this.canvasDimensions = calculateCanvasDimensions();
+    // We actually need to set the canvas dimensions programatically - otherwise the canvas just scales
+    this.canvas.width = this.canvasDimensions.width;
+    this.canvas.height = this.canvasDimensions.height;
   };
 
-  _updateCoordinates = ({ x: dx, y: dy }: Coordinates) => {
-    const { x, y } = this.coordinates;
-    // update on input
-    this.coordinates = {
-      x: constrainToBoundary(Dimension.Width)(x + dx, GAME_CONTAINER),
-      y: constrainToBoundary(Dimension.Height)(y + dy, GAME_CONTAINER),
+  _updateCameraPosition = ({ x, y }: Coordinates) => {
+    // If the window size is larger than the game container - we should not allow any camera movement
+    const xGrid = this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel;
+    const yGrid = this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel;
+    const xDiff = xGrid - this.canvasDimensions.width;
+    const yDiff = yGrid - this.canvasDimensions.height;
+
+    this.cameraPosition = {
+      x: boundNumberToMinMax(
+        x,
+        xDiff > 0 ? 0 : xDiff / 2,
+        xDiff > 0 ? xDiff : xDiff / 2
+      ),
+      y: boundNumberToMinMax(
+        y,
+        yDiff > 0 ? 0 : yDiff / 2,
+        yDiff > 0 ? yDiff : yDiff / 2
+      ),
     };
   };
 
-  updateCameraPosition = (dt: number) => {
+  handleKeyScroll = (dt: number) => {
     let dx = 0;
     let dy = 0;
     if (this.keysPressed.up) dy--;
@@ -97,9 +110,12 @@ class Renderer {
     if (this.keysPressed.left) dx--;
     if (this.keysPressed.right) dx++;
 
-    dx *= CAMERA_SPEED * dt;
-    dy *= CAMERA_SPEED * dt;
-    this._updateCoordinates({ x: dx, y: dy });
+    dx *= CAMERA_SPEED * this.zoomLevel * dt;
+    dy *= CAMERA_SPEED * this.zoomLevel * dt;
+    if (dx !== 0 || dy !== 0) {
+      const { x, y } = this.cameraPosition;
+      this._updateCameraPosition({ x: x + dx, y: y + dy });
+    }
   };
 
   handleZoom = (zoomChange: ZoomChange) => {
@@ -108,6 +124,18 @@ class Renderer {
         ? this.zoomLevel * 2
         : this.zoomLevel / 2;
     this.zoomLevel = boundNumberToMinMax(newZoom, 1, MAX_ZOOM);
+    // TODO This calculates middle of the view - we technically want current position by some zoom factor
+    // calculate offset + change based on zoom change
+    this._updateCameraPosition({
+      x:
+        (this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel -
+          this.canvasDimensions.width) /
+        2,
+      y:
+        (this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel -
+          this.canvasDimensions.height) /
+        2,
+    });
   };
 
   handleKeyUpdate = (keysToUpdate: KeysPress) => {
@@ -120,24 +148,39 @@ class Renderer {
   render = () => {
     // render a single board
     // render the background
-    this.context.scale(this.zoomLevel, this.zoomLevel);
     this.renderBackground();
   };
 
   renderBackground = () => {
-    // Get top left -> render in viewport
-    const { x, y } = constrainToGameBlock(this.coordinates);
-    // render top left tile to bottom right (adding an extra)
-    for (let i = 0; i <= GAME_CONTAINER.width / BLOCK_SIZE; i++) {
-      for (let j = 0; j <= GAME_CONTAINER.height / BLOCK_SIZE; j++) {
-        const tile = getBackgroundTile(i + x / BLOCK_SIZE, j + y / BLOCK_SIZE);
-        // TODO change this to add in an image
-        this.context.fillStyle = tile.color;
+    const tilePixels = BASE_TILE_SIZE * this.zoomLevel;
+    const { width, height } = this.canvasDimensions;
+    const { x, y } = this.cameraPosition;
+    const xOffset = Math.floor(x / tilePixels);
+    const yOffset = Math.floor(y / tilePixels);
+    // Start from camera position to canvasDimension size
+    for (let i = 0; i < width / tilePixels; i++) {
+      for (let j = 0; j < height / tilePixels; j++) {
+        const gameBlock = this.game.getBlock(i + xOffset, j + yOffset);
+        // render based on game block, for now lets just render different colors
+        switch (gameBlock.state) {
+          case GridState.Block:
+            this.context.fillStyle = "blue";
+            break;
+          case GridState.OutOfBounds:
+            this.context.fillStyle = "black";
+            break;
+          case GridState.InboundsUnplaceable:
+            this.context.fillStyle = "gray";
+            break;
+          case GridState.InboundsPlaceable:
+            this.context.fillStyle = "green";
+            break;
+        }
         this.context.fillRect(
-          i * BLOCK_SIZE,
-          j * BLOCK_SIZE,
-          BLOCK_SIZE,
-          BLOCK_SIZE
+          i * tilePixels,
+          j * tilePixels,
+          tilePixels,
+          tilePixels
         );
       }
     }
