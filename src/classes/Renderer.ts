@@ -1,6 +1,6 @@
 import { boundNumberToMinMax } from "<src>/utils";
 import { calculateCanvasDimensions } from "<src>/utils/dom";
-import { CAMERA_SPEED, MAX_ZOOM, INIT_ZOOM } from "<src>/constants";
+import { CAMERA_SPEED, MAX_ZOOM, MIN_ZOOM, INIT_ZOOM } from "<src>/constants";
 import Game, { GridState } from "<src>/classes/Game";
 import { Dimensions, Coordinates } from "<src>/types";
 import { ZoomChange } from "<src>/enums";
@@ -123,7 +123,7 @@ class Renderer {
       zoomChange === ZoomChange.Increase
         ? this.zoomLevel * 2
         : this.zoomLevel / 2;
-    this.zoomLevel = boundNumberToMinMax(newZoom, 1, MAX_ZOOM);
+    this.zoomLevel = boundNumberToMinMax(newZoom, MIN_ZOOM, MAX_ZOOM);
     // TODO This calculates middle of the view - we technically want current position by some zoom factor
     // calculate offset + change based on zoom change
     this._updateCameraPosition({
