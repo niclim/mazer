@@ -7,4 +7,4 @@ export const boundNumberToMinMax = (
 export const calculateWindowOffset = (
   windowDimension: number,
   containerDimension: number
-) => (containerDimension - windowDimension) / 2;
+): number => (containerDimension - windowDimension) / 2;
