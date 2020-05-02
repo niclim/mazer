@@ -1,43 +1,25 @@
-import { BLOCK_SIZE } from "<src>/constants";
-import { constrainToBoundary, constrainToGameBlock } from "<src>/utils";
-import { Dimension } from "<src>/types";
+import { boundNumberToMinMax, calculateWindowOffset } from "<src>/utils";
 
 describe("utils", () => {
-  describe("constrainToBoundary", () => {
-    const directions = [Dimension.HEIGHT, Dimension.WIDTH];
-    const GAME_CONTAINER = {
-      height: 100,
-      width: 200,
-    };
-
-    test("constrains to the lower boundary", () => {
-      const [heightDir, widthDir] = directions;
-      const heightConstrainer = constrainToBoundary(heightDir);
-      const widthConstrainer = constrainToBoundary(widthDir);
-      expect(heightConstrainer(-10, GAME_CONTAINER)).toBe(0);
-      expect(widthConstrainer(-10, GAME_CONTAINER)).toBe(0);
-    });
-
-    test("constrains to the top boundary", () => {
-      const [heightDir, widthDir] = directions;
-      const heightConstrainer = constrainToBoundary(heightDir);
-      const widthConstrainer = constrainToBoundary(widthDir);
-      expect(heightConstrainer(300, GAME_CONTAINER)).toBe(100);
-      expect(widthConstrainer(300, GAME_CONTAINER)).toBe(200);
-    });
+  test("boundNumberToMinMax constrains a number to a min or maximum", () => {
+    expect(boundNumberToMinMax(2, 1, 3)).toBe(2);
+    expect(boundNumberToMinMax(0, 1, 3)).toBe(1);
+    expect(boundNumberToMinMax(4, 1, 3)).toBe(3);
   });
 
-  describe("constrainToGameBlock", () => {
-    test("rounds to closest gameblock size", () => {
-      expect(
-        constrainToGameBlock({
-          x: BLOCK_SIZE + BLOCK_SIZE / 2,
-          y: BLOCK_SIZE * 3 + BLOCK_SIZE / 5,
-        })
-      ).toEqual({
-        x: BLOCK_SIZE,
-        y: BLOCK_SIZE * 3,
-      });
-    });
+  test("calculateWindowOffset", () => {
+    const testCases = [
+      [[200, 50], -75],
+      [[500, 100], -200],
+      [[10, 50], 20],
+    ];
+    for (const [
+      [windowDimension, containerDimension],
+      expectedResult,
+    ] of testCases) {
+      expect(calculateWindowOffset(windowDimension, containerDimension)).toBe(
+        expectedResult
+      );
+    }
   });
 });

@@ -9,7 +9,7 @@ const config = {
   resolve: {
     extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
     alias: {
-      src$: path.join(__dirname, "src"),
+      "<src>": path.join(__dirname, "src"),
     },
   },
   module: {

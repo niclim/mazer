@@ -1,6 +1,8 @@
 import debounce from "lodash.debounce";
+import Renderer, { KeysPress } from "<src>/classes/Renderer";
+import { ZoomChange } from "<src>/enums";
 
-const setupEventListeners = (renderer) => {
+const setupEventListeners = (renderer: Renderer) => {
   document.addEventListener("click", renderer.handleClick);
 
   document.addEventListener("keydown", (e) => {
@@ -10,9 +12,16 @@ const setupEventListeners = (renderer) => {
       case "ArrowDown":
       case "ArrowRight":
         const key = e.key.replace(/^Arrow/, "").toLowerCase();
-        renderer.handleKeyUpdate({ [key]: true });
+        renderer.handleKeyUpdate({ [key]: true } as KeysPress);
         break;
-      // hotkeys would be added here
+      case "=":
+      case "+":
+        renderer.handleZoom(ZoomChange.Increase);
+        break;
+      case "-":
+      case "_":
+        renderer.handleZoom(ZoomChange.Decrease);
+        break;
     }
   });
 
@@ -23,7 +32,7 @@ const setupEventListeners = (renderer) => {
       case "ArrowDown":
       case "ArrowRight":
         const key = e.key.replace(/^Arrow/, "").toLowerCase();
-        renderer.handleKeyUpdate({ [key]: false });
+        renderer.handleKeyUpdate({ [key]: false } as KeysPress);
         break;
     }
   });

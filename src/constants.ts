@@ -1,12 +1,5 @@
-import { Dimensions } from "<src>/types";
-
-// Size of the entire game
-export const GAME_CONTAINER: Dimensions = {
-  width: 500,
-  height: 1000,
-};
-
-// Size of each "block"
-export const BLOCK_SIZE = 10;
-
-export const CAMERA_SPEED = 40;
+export const CAMERA_SPEED = 400;
+export const BASE_TILE_SIZE = 25;
+export const MAX_ZOOM = 8;
+export const MIN_ZOOM = 1;
+export const INIT_ZOOM = 2;
