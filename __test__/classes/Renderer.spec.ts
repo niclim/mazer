@@ -1,7 +1,13 @@
 import Renderer from "<src>/classes/Renderer";
 import MockGameGenerator from "<src>/classes/Game";
-import { CAMERA_SPEED, MAX_ZOOM, MIN_ZOOM } from "<src>/constants";
+import {
+  CAMERA_SPEED,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  BASE_TILE_SIZE,
+} from "<src>/constants";
 import { ZoomChange } from "<src>/enums";
+import { calculateCanvasDimensions } from "<src>/utils/dom";
 jest.mock("<src>/utils/dom");
 
 // also need to mock dom specific stuff - move dom specific functions to its own file
@@ -14,15 +20,66 @@ describe("Renderer", () => {
     renderer = new Renderer(mockGame);
   });
 
-  describe("initialization", () => {
-    test("should center camera position", () => {
-      // todo
-    });
-  });
-
   describe("camera update functions", () => {
-    test("_updateCameraPosition", () => {
+    describe("_updateCameraPosition", () => {
       // Based on the grid size and the window size this should restrict to certain areas
+      test("window size greater than game container size", () => {
+        // Set up grid size and window size
+        const { width, height } = calculateCanvasDimensions();
+        // based on base tile size + gametiles - set zoom level
+        // Technically this could go outsize max zoom bounds - but it's easier to mock
+        renderer.zoomLevel =
+          Math.max(
+            width / (BASE_TILE_SIZE * mockGame.gridSizeX),
+            height / (BASE_TILE_SIZE * mockGame.gridSizeY)
+          ) * 2;
+
+        renderer._updateCameraPosition({
+          x: -10000,
+          y: -10000,
+        });
+        expect(renderer.cameraPosition).toEqual({ x: 0, y: 0 });
+
+        // Set to max bounds bottom right
+        renderer._updateCameraPosition({
+          x: 10000000,
+          y: 10000000,
+        });
+
+        expect(renderer.cameraPosition.x).toBeGreaterThan(0);
+        expect(renderer.cameraPosition.y).toBeGreaterThan(0);
+      });
+
+      test("window size less than game container size", () => {
+        // Should not allow camera movement
+        // Set up grid size and window size
+        const { width, height } = calculateCanvasDimensions();
+        // based on base tile size + gametiles - set zoom level
+        // Technically this could go outsize min zoom bounds - but it's easier to mock
+        renderer.zoomLevel =
+          Math.min(
+            width / (BASE_TILE_SIZE * mockGame.gridSizeX),
+            height / (BASE_TILE_SIZE * mockGame.gridSizeY)
+          ) / 2;
+
+        renderer._updateCameraPosition({
+          x: 0,
+          y: 0,
+        });
+        const { x, y } = renderer.cameraPosition;
+
+        renderer._updateCameraPosition({
+          x: -1000000,
+          y: -1000000,
+        });
+        expect(renderer.cameraPosition).toEqual({ x, y });
+
+        renderer._updateCameraPosition({
+          x: 1000000,
+          y: 1000000,
+        });
+        expect(renderer.cameraPosition).toEqual({ x, y });
+      });
     });
 
     test("handleZoomChange", () => {

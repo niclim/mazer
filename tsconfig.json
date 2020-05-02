@@ -2,6 +2,7 @@
   "compilerOptions": {
     "outDir": "./public",
     "esModuleInterop": true,
+    "downlevelIteration": true,
     "allowJs": true,
     "target": "es5",
     "baseUrl": ".",

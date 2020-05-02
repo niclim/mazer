@@ -1,6 +1,12 @@
-import { boundNumberToMinMax } from "<src>/utils";
+import { boundNumberToMinMax, calculateWindowOffset } from "<src>/utils";
 import { calculateCanvasDimensions } from "<src>/utils/dom";
-import { CAMERA_SPEED, MAX_ZOOM, MIN_ZOOM, INIT_ZOOM } from "<src>/constants";
+import {
+  BASE_TILE_SIZE,
+  CAMERA_SPEED,
+  INIT_ZOOM,
+  MAX_ZOOM,
+  MIN_ZOOM,
+} from "<src>/constants";
 import Game, { GridState } from "<src>/classes/Game";
 import { Dimensions, Coordinates } from "<src>/types";
 import { ZoomChange } from "<src>/enums";
@@ -11,8 +17,6 @@ export type KeysPress = {
   right?: boolean;
   down?: boolean;
 };
-
-const BASE_TILE_SIZE = 25;
 
 /**
  * The Renderer handles all the rendering and UI interactions
@@ -52,14 +56,14 @@ class Renderer {
 
     // Center the camera in the middle of the container
     this._updateCameraPosition({
-      x:
-        (this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel -
-          this.canvasDimensions.width) /
-        2,
-      y:
-        (this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel -
-          this.canvasDimensions.height) /
-        2,
+      x: calculateWindowOffset(
+        this.canvasDimensions.width,
+        this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel
+      ),
+      y: calculateWindowOffset(
+        this.canvasDimensions.height,
+        this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel
+      ),
     });
 
     // Set stuff for the canvas
