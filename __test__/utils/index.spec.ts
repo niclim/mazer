@@ -1,4 +1,8 @@
-import { boundNumberToMinMax, calculateWindowOffset } from "<src>/utils";
+import {
+  boundNumberToMinMax,
+  calculateWindowOffset,
+  getRandomNum,
+} from "<src>/utils";
 
 describe("utils", () => {
   test("boundNumberToMinMax constrains a number to a min or maximum", () => {
@@ -21,5 +25,18 @@ describe("utils", () => {
         expectedResult
       );
     }
+  });
+
+  test("getRandomNum", () => {
+    jest.spyOn(global.Math, "random").mockReturnValue(1);
+    expect(getRandomNum(10, 2)).toBe(10);
+
+    jest.spyOn(global.Math, "random").mockReturnValue(0);
+    expect(getRandomNum(10, 2)).toBe(2);
+
+    jest.spyOn(global.Math, "random").mockReturnValue(0.2);
+    expect(getRandomNum(10, 2)).toBe(3);
+
+    (global.Math.random as any).mockRestore();
   });
 });
