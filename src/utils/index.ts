@@ -8,3 +8,6 @@ export const calculateWindowOffset = (
   windowDimension: number,
   containerDimension: number
 ): number => (containerDimension - windowDimension) / 2;
+
+export const getRandomNum = (upper: number, lower: number = 0): number =>
+  Math.floor(Math.random() * (upper - lower)) + lower;
