@@ -2,6 +2,7 @@ import {
   boundNumberToMinMax,
   calculateWindowOffset,
   getRandomNum,
+  isCoordSame,
 } from "<src>/utils";
 
 describe("utils", () => {
@@ -38,5 +39,28 @@ describe("utils", () => {
     expect(getRandomNum(10, 2)).toBe(3);
 
     (global.Math.random as any).mockRestore();
+  });
+
+  test("isCoordSame", () => {
+    const coord1 = {
+      x: 1,
+      y: 2,
+    };
+    const coord2 = {
+      x: 1,
+      y: 2,
+    };
+    const coord3 = {
+      x: 1,
+      y: 1,
+    };
+    const coord4 = {
+      x: 2,
+      y: 2,
+    };
+    expect(isCoordSame(coord1, coord2)).toBeTruthy();
+    expect(isCoordSame(coord1, coord3)).toBeFalsy();
+    expect(isCoordSame(coord1, coord4)).toBeFalsy();
+    expect(isCoordSame(coord3, coord4)).toBeFalsy();
   });
 });

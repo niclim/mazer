@@ -1,3 +1,5 @@
+import { Coordinates } from "<src>/types";
+
 export const boundNumberToMinMax = (
   n: number,
   min: number,
@@ -11,3 +13,6 @@ export const calculateWindowOffset = (
 
 export const getRandomNum = (upper: number, lower: number = 0): number =>
   Math.floor(Math.random() * (upper - lower)) + lower;
+
+export const isCoordSame = (c1: Coordinates, c2: Coordinates): boolean =>
+  c1.x === c2.x && c1.y === c2.y;

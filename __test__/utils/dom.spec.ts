@@ -1,4 +1,4 @@
-import { calculateCanvasDimensions } from "../../src/utils/dom";
+import { calculateCanvasDimensions } from "<src>/utils/dom";
 
 describe("utils", () => {
   describe("calculateCanvasDimensions", () => {
