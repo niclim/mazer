@@ -1,4 +1,5 @@
-import { GridState } from "<src>/enums";
+import { PATHABLE_STATE } from "<src>/constants";
+import { isCoordSame } from "<src>/utils";
 import { Coordinates, Grid, Path, GridBlock } from "<src>/types";
 import PriorityQueue from "<src>/utils/priorityQueue";
 
@@ -13,10 +14,9 @@ const VALID_DIRECTIONS = [
   [0, -1],
 ];
 
-const isCoordSame = (c1: Coordinates, c2: Coordinates): boolean =>
-  c1.x === c2.x && c1.y === c2.y;
-
-const PathableState = [GridState.InboundsPlaceable];
+// Search heustic bias to diff against
+const searchHeuristic = (current: Coordinates, goal: Coordinates): number =>
+  Math.abs(current.x - goal.x) + Math.abs(current.y - goal.y);
 
 const _getValidMoves = (grid: Grid, position: Coordinates): Coordinates[] => {
   const validMoves = [];
@@ -26,7 +26,11 @@ const _getValidMoves = (grid: Grid, position: Coordinates): Coordinates[] => {
     const newX = x + dx;
     const newY = y + dy;
     // Here we are relying on out of bounds array to be undefined
-    if (grid[newX][newY] && grid[newX][newY].state in PathableState) {
+    if (
+      grid[newX] &&
+      grid[newX][newY] &&
+      PATHABLE_STATE.includes(grid[newX][newY].state)
+    ) {
       validMoves.push({
         x: newX,
         y: newY,
@@ -73,9 +77,7 @@ const _search = (
           previous: current,
           costSoFar: newCost,
         });
-        // TODO create heuristic
-        const fakeHeuristicFn = () => 1;
-        const priority = newCost + fakeHeuristicFn();
+        const priority = newCost + searchHeuristic(nextLocation, end);
         queue.put(nextLocation, priority);
       }
       // Otherwise, we don't need to continue
@@ -94,7 +96,7 @@ export const findPath = (
 ): Path | null => {
   // Check if start == end
   if (isCoordSame(start, end)) {
-    return [];
+    return [end];
   }
 
   const nodeMap = _search(grid, start, end);
