@@ -7,9 +7,9 @@ import {
   MAX_ZOOM,
   MIN_ZOOM,
 } from "<src>/constants";
-import Game, { GridState } from "<src>/classes/Game";
+import Game from "<src>/classes/Game";
 import { Dimensions, Coordinates } from "<src>/types";
-import { ZoomChange } from "<src>/enums";
+import { GridState, ZoomChange } from "<src>/enums";
 
 export type KeysPress = {
   up?: boolean;

@@ -2,8 +2,9 @@ import {
   NUM_INITIAL_BLOCKS,
   MAX_RETRIES_BLOCK_PLACEMENT,
 } from "<src>/constants";
+import { GridState } from "<src>/enums";
 import { getRandomNum } from "<src>/utils";
-import { Coordinates } from "<src>/types";
+import { Coordinates, GridBlock, Grid } from "<src>/types";
 
 // Each container which contains the maze will be 8 tiles wide + 12 tiles high
 // each tile is 50px x 50 px
@@ -17,30 +18,12 @@ const CONTAINER_SIZE = {
   y: 12,
 };
 
-export enum GridState {
-  OutOfBounds, // Invalid path cannot place blocks
-  InboundsUnplaceable, // Valid path but cannot place blocks
-  InboundsPlaceable, // Valid path can place blocks
-  Block, // Has a block placed
-}
-
-type GridBlock = {
-  state: GridState;
-};
-
 class Game {
-  // TODO fix typing
-  monsters: any[];
-  blocks: any[];
-  clickState?: string;
-  grid: GridBlock[][];
+  grid: Grid;
   gridSizeX: number;
   gridSizeY: number;
 
   constructor() {
-    this.monsters = [];
-    this.blocks = [];
-    this.clickState = null;
     this.grid = [];
     const xMax = CONTAINER_BUFFER.x * 2 + CONTAINER_SIZE.x;
     const yMax = CONTAINER_BUFFER.y * 2 + CONTAINER_SIZE.y;
@@ -72,6 +55,8 @@ class Game {
         }
         this.grid[x].push({
           state: gridState,
+          x,
+          y,
         });
       }
     }
@@ -94,6 +79,7 @@ class Game {
       // TODO also check for "is pathing valid"
       if (this.grid[x][y].state === GridState.InboundsPlaceable) {
         this.grid[x][y] = {
+          ...this.grid[x][y],
           state: GridState.Block,
         };
         return;
@@ -112,10 +98,10 @@ class Game {
   }
 
   getBlock(x: number, y: number): GridBlock {
-    // TODO check outof bounds
-    return this.grid[x] && this.grid[x][y]
-      ? this.grid[x][y]
-      : { state: GridState.OutOfBounds };
+    // Returns an invalid block if out of bounds
+    const invalidBlock = { state: GridState.OutOfBounds, x: 0, y: 0 };
+
+    return this.grid[x] && this.grid[x][y] ? this.grid[x][y] : invalidBlock;
   }
 
   // tslint:disable-next-line
