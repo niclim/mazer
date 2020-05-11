@@ -11,7 +11,7 @@ import Game from "<src>/classes/Game";
 import { Dimensions, Coordinates } from "<src>/types";
 import { GridState, ZoomChange } from "<src>/enums";
 
-export type KeysPress = {
+export type ArrowKeysPressed = {
   up?: boolean;
   left?: boolean;
   right?: boolean;
@@ -31,7 +31,7 @@ class Renderer {
   game: Game;
   canvasDimensions: Dimensions;
   cameraPosition: Coordinates;
-  keysPressed: KeysPress;
+  keysPressed: ArrowKeysPressed;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   zoomLevel: number;
@@ -75,7 +75,7 @@ class Renderer {
     // this calculates the thing to be clicked and then handles the click on that item
     // passes informaiton about click location, what was clicked which game then handles
     // translate this in to the actual location on the board
-    this.game.handleClick(e);
+    // this.game.handleClick(e);
   };
 
   windowResize = () => {
@@ -142,7 +142,7 @@ class Renderer {
     });
   };
 
-  handleKeyUpdate = (keysToUpdate: KeysPress) => {
+  handleKeyUpdate = (keysToUpdate: ArrowKeysPressed) => {
     this.keysPressed = {
       ...this.keysPressed,
       ...keysToUpdate,

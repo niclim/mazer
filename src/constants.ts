@@ -11,3 +11,4 @@ export const INIT_ZOOM = 2;
 export const NUM_INITIAL_BLOCKS = 15;
 export const MAX_RETRIES_BLOCK_PLACEMENT = 50;
 export const PATHABLE_STATE = [GridState.InboundsPlaceable];
+export const RUNNER_SPEED = 10; // px per second
