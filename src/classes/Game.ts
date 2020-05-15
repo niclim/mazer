@@ -8,6 +8,7 @@ import GameUnit from "<src>/classes/GameUnit";
 import Runner from "<src>/classes/Runner";
 import { GridState } from "<src>/enums";
 import { getRandomNum, uuid4 } from "<src>/utils";
+import { hasValidPath } from "<src>/utils/path";
 import { Coordinates, GridBlock, Grid } from "<src>/types";
 
 // Each container which contains the maze will be 8 tiles wide + 12 tiles high
@@ -42,9 +43,12 @@ class Game {
     this.end = { x: xCenter, y: CONTAINER_BUFFER.y - 1 };
     this._setupInitialBoardState(xMax, yMax);
     this._createInitialBlocks();
+
+    // TODO move this to game state
+    this.createRunner();
   }
 
-  private _setupInitialBoardState(xMax: number, yMax: number) {
+  private _setupInitialBoardState = (xMax: number, yMax: number): void => {
     for (let x = 0; x < xMax; x++) {
       this.grid.push([]);
       for (let y = 0; y < yMax; y++) {
@@ -70,51 +74,59 @@ class Game {
         });
       }
     }
-  }
+  };
 
-  private _getRandomBlockCoordinates(): Coordinates {
+  private _getRandomBlockCoordinates = (): Coordinates => {
     return {
       x: getRandomNum(this.gridSizeX - CONTAINER_BUFFER.x, CONTAINER_BUFFER.x),
       y: getRandomNum(this.gridSizeY - CONTAINER_BUFFER.y, CONTAINER_BUFFER.y),
     };
-  }
+  };
 
-  private _placeRandomizedBlock() {
+  private _placeRandomizedBlock = () => {
     // TODO - add some probablity here of throwing an error
     // And tune retry amounts to this
     for (let n = 0; n < MAX_RETRIES_BLOCK_PLACEMENT; n++) {
       // TODO - update this to use a more refined version for better
       // spaced out blocks
       const { x, y } = this._getRandomBlockCoordinates();
-      // TODO also check for "is pathing valid"
       if (this.grid[x][y].state === GridState.InboundsPlaceable) {
         this.grid[x][y] = {
           ...this.grid[x][y],
           state: GridState.Block,
         };
-        return;
+
+        // Validate block does not block a valid path
+        if (hasValidPath(this.grid, this.start, this.end)) {
+          return;
+        } else {
+          this.grid[x][y] = {
+            ...this.grid[x][y],
+            state: GridState.InboundsPlaceable,
+          };
+        }
       }
     }
     // TODO have better error handling here
     throw new Error(
       `Tried ${MAX_RETRIES_BLOCK_PLACEMENT} times to initialize board state`
     );
-  }
+  };
 
-  private _createInitialBlocks() {
+  private _createInitialBlocks = () => {
     for (let i = 0; i < NUM_INITIAL_BLOCKS; i++) {
       this._placeRandomizedBlock();
     }
-  }
+  };
 
-  getBlock(x: number, y: number): GridBlock {
+  public getBlock = (x: number, y: number): GridBlock => {
     // Returns an invalid block if out of bounds
     const invalidBlock = { state: GridState.OutOfBounds, x: 0, y: 0 };
 
     return this.grid[x] && this.grid[x][y] ? this.grid[x][y] : invalidBlock;
-  }
+  };
 
-  createRunner() {
+  public createRunner = () => {
     // Runner will run through the maze
     const identifier = uuid4();
     this.gameUnits[identifier] = new Runner(
@@ -126,15 +138,15 @@ class Game {
         this.gameUnits = omit(this.gameUnits, _id);
       }
     );
-  }
+  };
 
-  runCycle(dt: number) {
+  public runCycle = (dt: number) => {
     Object.values(this.gameUnits).forEach((unit) => {
       unit.runCycle(dt);
     });
-  }
+  };
 
-  *getUnitsForRender(): Generator<GameUnit> {
+  public *getUnitsForRender(): Generator<GameUnit> {
     for (const unit of Object.values(this.gameUnits)) {
       yield unit;
     }

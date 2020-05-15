@@ -2,6 +2,7 @@ import once from "lodash.once";
 
 import { RUNNER_SPEED } from "<src>/constants";
 import { Coordinates, Grid, Path } from "<src>/types";
+import { boundNumberToMinMax } from "<src>/utils";
 import { findPath } from "<src>/utils/path";
 import GameUnit from "<src>/classes/GameUnit";
 
@@ -33,7 +34,32 @@ export default class Runner extends GameUnit {
     this.completionFn = once(completionFn);
   }
 
-  runCycle(dt: number) {
+  private _isCompleted = (): boolean => {
+    return this.currentPosition >= this.path.length - 1;
+  };
+
+  private _getPartialPositionDiff = (): Coordinates => {
+    // If at the end, we should return 0/0
+    if (this._isCompleted()) {
+      return { x: 0, y: 0 };
+    }
+
+    const dx =
+      (this.path[this.currentPosition + 1].x -
+        this.path[this.currentPosition].x) *
+      this.progressToNext;
+    const dy =
+      (this.path[this.currentPosition + 1].y -
+        this.path[this.currentPosition].y) *
+      this.progressToNext;
+
+    return {
+      x: boundNumberToMinMax(dx, -1, 1),
+      y: boundNumberToMinMax(dy, -1, 1),
+    };
+  };
+
+  public runCycle = (dt: number) => {
     const moveDistance = RUNNER_SPEED * dt;
     this.progressToNext += moveDistance;
     while (this.progressToNext >= 1) {
@@ -44,10 +70,32 @@ export default class Runner extends GameUnit {
         this.currentPosition++;
       }
     }
-  }
+  };
 
-  render() {
-    // TODO
-    // return x y offset from absolute zero + way to render?
-  }
+  public render = (
+    context: CanvasRenderingContext2D,
+    cameraPosition: Coordinates,
+    tilePixels: number
+  ) => {
+    if (this._isCompleted()) {
+      return;
+    }
+
+    const { x: dx, y: dy } = this._getPartialPositionDiff();
+    const absolutePosition = {
+      x:
+        (this.path[this.currentPosition].x + dx) * tilePixels -
+        cameraPosition.x,
+      y:
+        (this.path[this.currentPosition].y + dy) * tilePixels -
+        cameraPosition.y,
+    };
+    context.fillStyle = "purple";
+    context.fillRect(
+      absolutePosition.x,
+      absolutePosition.y,
+      tilePixels,
+      tilePixels
+    );
+  };
 }
