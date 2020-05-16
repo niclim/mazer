@@ -6,7 +6,7 @@ import { boundNumberToMinMax } from "<src>/utils";
 import { findPath } from "<src>/utils/path";
 import GameUnit from "<src>/classes/GameUnit";
 
-export type CompletionFn = (identifier: string) => void;
+export type CompletionFn = () => void;
 
 export default class Runner extends GameUnit {
   identifier: string;
@@ -65,11 +65,18 @@ export default class Runner extends GameUnit {
     while (this.progressToNext >= 1) {
       this.progressToNext--;
       if (this.currentPosition >= this.path.length) {
-        this.completionFn(this.identifier);
+        this.completionFn();
       } else {
         this.currentPosition++;
       }
     }
+  };
+
+  public getPosition = (): [Coordinates, number] => {
+    const position = this._isCompleted()
+      ? this.currentPosition - 1
+      : this.currentPosition;
+    return [this.path[position], this.progressToNext];
   };
 
   public render = (

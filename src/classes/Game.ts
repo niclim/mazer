@@ -134,8 +134,8 @@ class Game {
       this.grid,
       this.start,
       this.end,
-      (_id: string) => {
-        this.gameUnits = omit(this.gameUnits, _id);
+      () => {
+        this.gameUnits = omit(this.gameUnits, identifier);
       }
     );
   };
@@ -146,7 +146,7 @@ class Game {
     });
   };
 
-  public *getUnitsForRender(): Generator<GameUnit> {
+  public *getGameUnits(): Generator<GameUnit> {
     for (const unit of Object.values(this.gameUnits)) {
       yield unit;
     }

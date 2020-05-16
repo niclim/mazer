@@ -193,7 +193,7 @@ class Renderer {
 
   renderGameUnits = () => {
     const tilePixels = BASE_TILE_SIZE * this.zoomLevel;
-    for (const gameUnit of this.game.getUnitsForRender()) {
+    for (const gameUnit of this.game.getGameUnits()) {
       gameUnit.render(this.context, this.cameraPosition, tilePixels);
     }
   };
