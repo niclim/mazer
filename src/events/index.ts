@@ -1,5 +1,5 @@
 import debounce from "lodash.debounce";
-import Renderer, { KeysPress } from "<src>/classes/Renderer";
+import Renderer, { ArrowKeysPressed } from "<src>/classes/Renderer";
 import { ZoomChange } from "<src>/enums";
 
 const setupEventListeners = (renderer: Renderer) => {
@@ -12,7 +12,7 @@ const setupEventListeners = (renderer: Renderer) => {
       case "ArrowDown":
       case "ArrowRight":
         const key = e.key.replace(/^Arrow/, "").toLowerCase();
-        renderer.handleKeyUpdate({ [key]: true } as KeysPress);
+        renderer.handleKeyUpdate({ [key]: true } as ArrowKeysPressed);
         break;
       case "=":
       case "+":
@@ -32,7 +32,7 @@ const setupEventListeners = (renderer: Renderer) => {
       case "ArrowDown":
       case "ArrowRight":
         const key = e.key.replace(/^Arrow/, "").toLowerCase();
-        renderer.handleKeyUpdate({ [key]: false } as KeysPress);
+        renderer.handleKeyUpdate({ [key]: false } as ArrowKeysPressed);
         break;
     }
   });

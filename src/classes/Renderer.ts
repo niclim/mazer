@@ -11,7 +11,7 @@ import Game from "<src>/classes/Game";
 import { Dimensions, Coordinates } from "<src>/types";
 import { GridState, ZoomChange } from "<src>/enums";
 
-export type KeysPress = {
+export type ArrowKeysPressed = {
   up?: boolean;
   left?: boolean;
   right?: boolean;
@@ -31,7 +31,7 @@ class Renderer {
   game: Game;
   canvasDimensions: Dimensions;
   cameraPosition: Coordinates;
-  keysPressed: KeysPress;
+  keysPressed: ArrowKeysPressed;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   zoomLevel: number;
@@ -75,7 +75,7 @@ class Renderer {
     // this calculates the thing to be clicked and then handles the click on that item
     // passes informaiton about click location, what was clicked which game then handles
     // translate this in to the actual location on the board
-    this.game.handleClick(e);
+    // this.game.handleClick(e);
   };
 
   windowResize = () => {
@@ -142,7 +142,7 @@ class Renderer {
     });
   };
 
-  handleKeyUpdate = (keysToUpdate: KeysPress) => {
+  handleKeyUpdate = (keysToUpdate: ArrowKeysPressed) => {
     this.keysPressed = {
       ...this.keysPressed,
       ...keysToUpdate,
@@ -153,18 +153,19 @@ class Renderer {
     // render a single board
     // render the background
     this.renderBackground();
+    this.renderGameUnits();
   };
 
   renderBackground = () => {
     const tilePixels = BASE_TILE_SIZE * this.zoomLevel;
     const { width, height } = this.canvasDimensions;
     const { x, y } = this.cameraPosition;
-    const xOffset = Math.floor(x / tilePixels);
-    const yOffset = Math.floor(y / tilePixels);
     // Start from camera position to canvasDimension size
-    for (let i = 0; i < width / tilePixels; i++) {
-      for (let j = 0; j < height / tilePixels; j++) {
-        const gameBlock = this.game.getBlock(i + xOffset, j + yOffset);
+    for (let i = 0; i <= width / tilePixels + 1; i++) {
+      for (let j = 0; j <= height / tilePixels + 1; j++) {
+        const xBlock = Math.floor(x / tilePixels) + i;
+        const yBlock = Math.floor(y / tilePixels) + j;
+        const gameBlock = this.game.getBlock(xBlock, yBlock);
         // render based on game block, for now lets just render different colors
         switch (gameBlock.state) {
           case GridState.Block:
@@ -181,8 +182,8 @@ class Renderer {
             break;
         }
         this.context.fillRect(
-          i * tilePixels,
-          j * tilePixels,
+          xBlock * tilePixels - x,
+          yBlock * tilePixels - y,
           tilePixels,
           tilePixels
         );
@@ -190,8 +191,11 @@ class Renderer {
     }
   };
 
-  renderElement = () => {
-    // renders a single element if it is in the viewport
+  renderGameUnits = () => {
+    const tilePixels = BASE_TILE_SIZE * this.zoomLevel;
+    for (const gameUnit of this.game.getGameUnits()) {
+      gameUnit.render(this.context, this.cameraPosition, tilePixels);
+    }
   };
 }
 
