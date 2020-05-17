@@ -97,6 +97,8 @@ export default class Runner extends GameUnit {
         (this.path[this.currentPosition].y + dy) * tilePixels -
         cameraPosition.y,
     };
+    // TODO - only render if in viewport
+
     context.fillStyle = "purple";
     context.fillRect(
       absolutePosition.x,

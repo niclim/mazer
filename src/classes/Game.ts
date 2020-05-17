@@ -119,6 +119,12 @@ class Game {
     }
   };
 
+  public getGridInfo = (): [Grid, Coordinates, Coordinates] => [
+    this.grid,
+    this.start,
+    this.end,
+  ];
+
   public getBlock = (x: number, y: number): GridBlock => {
     // Returns an invalid block if out of bounds
     const invalidBlock = { state: GridState.OutOfBounds, x: 0, y: 0 };
