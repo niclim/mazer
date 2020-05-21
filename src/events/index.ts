@@ -3,7 +3,16 @@ import Renderer, { ArrowKeysPressed } from "<src>/classes/Renderer";
 import { ZoomChange } from "<src>/enums";
 
 const setupEventListeners = (renderer: Renderer) => {
-  document.addEventListener("click", renderer.handleClick);
+  document.addEventListener("click", (e: MouseEvent) => {
+    const { clientX, clientY } = e;
+    const target = e.target as Element;
+    if (target.tagName === "CANVAS" && target.id === "game") {
+      const rect = target.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      renderer.handleClick({ x, y });
+    }
+  });
 
   document.addEventListener("keydown", (e) => {
     switch (e.key) {

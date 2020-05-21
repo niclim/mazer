@@ -83,6 +83,27 @@ class Game {
     };
   };
 
+  private setBlockState = (x: number, y: number, state: GridState) => {
+    this.grid[x][y] = {
+      ...this.grid[x][y],
+      state,
+    };
+  };
+
+  private placeBlockAtLocation = (x: number, y: number) => {
+    const originalState = this.grid[x][y].state;
+    if (originalState !== GridState.InboundsPlaceable) {
+      throw new Error("Invalid placement location");
+    }
+    this.setBlockState(x, y, GridState.Block);
+
+    // Validate block does not block a valid path
+    if (!hasValidPath(this.grid, this.start, this.end)) {
+      this.setBlockState(x, y, originalState);
+      throw new Error("No valid path");
+    }
+  };
+
   private _placeRandomizedBlock = () => {
     // TODO - add some probablity here of throwing an error
     // And tune retry amounts to this
@@ -90,22 +111,10 @@ class Game {
       // TODO - update this to use a more refined version for better
       // spaced out blocks
       const { x, y } = this._getRandomBlockCoordinates();
-      if (this.grid[x][y].state === GridState.InboundsPlaceable) {
-        this.grid[x][y] = {
-          ...this.grid[x][y],
-          state: GridState.Block,
-        };
-
-        // Validate block does not block a valid path
-        if (hasValidPath(this.grid, this.start, this.end)) {
-          return;
-        } else {
-          this.grid[x][y] = {
-            ...this.grid[x][y],
-            state: GridState.InboundsPlaceable,
-          };
-        }
-      }
+      try {
+        this.placeBlockAtLocation(x, y);
+        return;
+      } catch (e) {} // tslint:disable-line
     }
     // TODO have better error handling here
     throw new Error(
@@ -157,6 +166,16 @@ class Game {
       yield unit;
     }
   }
+
+  public handleClick = (blockCoordinates: Coordinates) => {
+    const { x, y } = blockCoordinates;
+    // TODO add more game state flows
+    const currentBlock = this.getBlock(x, y);
+    if (currentBlock.state === GridState.InboundsPlaceable) {
+      // TODO add error handling
+      this.placeBlockAtLocation(x, y);
+    }
+  };
 }
 
 export default Game;

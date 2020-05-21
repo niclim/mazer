@@ -21,7 +21,7 @@ describe("Renderer", () => {
   });
 
   describe("camera update functions", () => {
-    describe("_updateCameraPosition", () => {
+    describe("updateCameraPosition", () => {
       // Based on the grid size and the window size this should restrict to certain areas
       test("window size greater than game container size", () => {
         // Set up grid size and window size
@@ -34,14 +34,14 @@ describe("Renderer", () => {
             height / (BASE_TILE_SIZE * mockGame.gridSizeY)
           ) * 2;
 
-        renderer._updateCameraPosition({
+        renderer.updateCameraPosition({
           x: -10000,
           y: -10000,
         });
         expect(renderer.cameraPosition).toEqual({ x: 0, y: 0 });
 
         // Set to max bounds bottom right
-        renderer._updateCameraPosition({
+        renderer.updateCameraPosition({
           x: 10000000,
           y: 10000000,
         });
@@ -62,19 +62,19 @@ describe("Renderer", () => {
             height / (BASE_TILE_SIZE * mockGame.gridSizeY)
           ) / 2;
 
-        renderer._updateCameraPosition({
+        renderer.updateCameraPosition({
           x: 0,
           y: 0,
         });
         const { x, y } = renderer.cameraPosition;
 
-        renderer._updateCameraPosition({
+        renderer.updateCameraPosition({
           x: -1000000,
           y: -1000000,
         });
         expect(renderer.cameraPosition).toEqual({ x, y });
 
-        renderer._updateCameraPosition({
+        renderer.updateCameraPosition({
           x: 1000000,
           y: 1000000,
         });

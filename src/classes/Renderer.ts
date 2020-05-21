@@ -8,6 +8,7 @@ import {
   MIN_ZOOM,
 } from "<src>/constants";
 import Game from "<src>/classes/Game";
+import HudItem from "<src>/classes/HudItem";
 import { Dimensions, Coordinates } from "<src>/types";
 import { GridState, ZoomChange } from "<src>/enums";
 
@@ -35,6 +36,8 @@ class Renderer {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   zoomLevel: number;
+  hudItems: HudItem[];
+
   constructor(game: Game) {
     this.game = game;
     // dimensions refers to the canvas container size (which is defined by window size)
@@ -53,16 +56,18 @@ class Renderer {
     this.canvas.width = this.canvasDimensions.width;
     this.canvas.height = this.canvasDimensions.height;
     this.zoomLevel = INIT_ZOOM;
+    // TODO initialize items here
+    this.hudItems = [];
 
     // Center the camera in the middle of the container
-    this._updateCameraPosition({
+    this.updateCameraPosition({
       x: calculateWindowOffset(
         this.canvasDimensions.width,
-        this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel
+        this.game.gridSizeX * this.tilePixels
       ),
       y: calculateWindowOffset(
         this.canvasDimensions.height,
-        this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel
+        this.game.gridSizeY * this.tilePixels
       ),
     });
 
@@ -71,24 +76,41 @@ class Renderer {
     document.querySelector("body").prepend(this.canvas);
   }
 
-  handleClick = (e: MouseEvent) => {
-    // this calculates the thing to be clicked and then handles the click on that item
-    // passes informaiton about click location, what was clicked which game then handles
-    // translate this in to the actual location on the board
-    // this.game.handleClick(e);
+  get tilePixels(): number {
+    return BASE_TILE_SIZE * this.zoomLevel;
+  }
+
+  public handleClick = (clickLocation: Coordinates): void => {
+    // Check for intersection with any hud item
+    for (const hudItem of this.hudItems) {
+      // check for intersection
+      if (hudItem.doesIntersect(clickLocation)) {
+        return hudItem.triggerAction(this);
+      }
+    }
+
+    // Transform this click location into the actual coordinates of the game
+    const xBlock = Math.floor(
+      (clickLocation.x + this.cameraPosition.x) / this.tilePixels
+    );
+    const yBlock = Math.floor(
+      (clickLocation.y + this.cameraPosition.y) / this.tilePixels
+    );
+    // Should call game handle click at certain locations
+    this.game.handleClick({ x: xBlock, y: yBlock });
   };
 
-  windowResize = () => {
+  public windowResize = () => {
     this.canvasDimensions = calculateCanvasDimensions();
     // We actually need to set the canvas dimensions programatically - otherwise the canvas just scales
     this.canvas.width = this.canvasDimensions.width;
     this.canvas.height = this.canvasDimensions.height;
   };
 
-  _updateCameraPosition = ({ x, y }: Coordinates) => {
+  public updateCameraPosition = ({ x, y }: Coordinates) => {
     // If the window size is larger than the game container - we should not allow any camera movement
-    const xGrid = this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel;
-    const yGrid = this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel;
+    const xGrid = this.game.gridSizeX * this.tilePixels;
+    const yGrid = this.game.gridSizeY * this.tilePixels;
     const xDiff = xGrid - this.canvasDimensions.width;
     const yDiff = yGrid - this.canvasDimensions.height;
 
@@ -106,7 +128,7 @@ class Renderer {
     };
   };
 
-  handleKeyScroll = (dt: number) => {
+  public handleKeyScroll = (dt: number) => {
     let dx = 0;
     let dy = 0;
     if (this.keysPressed.up) dy--;
@@ -118,11 +140,11 @@ class Renderer {
     dy *= CAMERA_SPEED * this.zoomLevel * dt;
     if (dx !== 0 || dy !== 0) {
       const { x, y } = this.cameraPosition;
-      this._updateCameraPosition({ x: x + dx, y: y + dy });
+      this.updateCameraPosition({ x: x + dx, y: y + dy });
     }
   };
 
-  handleZoom = (zoomChange: ZoomChange) => {
+  public handleZoom = (zoomChange: ZoomChange) => {
     const newZoom =
       zoomChange === ZoomChange.Increase
         ? this.zoomLevel * 2
@@ -130,34 +152,32 @@ class Renderer {
     this.zoomLevel = boundNumberToMinMax(newZoom, MIN_ZOOM, MAX_ZOOM);
     // TODO This calculates middle of the view - we technically want current position by some zoom factor
     // calculate offset + change based on zoom change
-    this._updateCameraPosition({
+    this.updateCameraPosition({
       x:
-        (this.game.gridSizeX * BASE_TILE_SIZE * this.zoomLevel -
-          this.canvasDimensions.width) /
+        (this.game.gridSizeX * this.tilePixels - this.canvasDimensions.width) /
         2,
       y:
-        (this.game.gridSizeY * BASE_TILE_SIZE * this.zoomLevel -
-          this.canvasDimensions.height) /
+        (this.game.gridSizeY * this.tilePixels - this.canvasDimensions.height) /
         2,
     });
   };
 
-  handleKeyUpdate = (keysToUpdate: ArrowKeysPressed) => {
+  public handleKeyUpdate = (keysToUpdate: ArrowKeysPressed) => {
     this.keysPressed = {
       ...this.keysPressed,
       ...keysToUpdate,
     };
   };
 
-  render = () => {
+  public render = () => {
     // render a single board
     // render the background
     this.renderBackground();
     this.renderGameUnits();
   };
 
-  renderBackground = () => {
-    const tilePixels = BASE_TILE_SIZE * this.zoomLevel;
+  private renderBackground = () => {
+    const tilePixels = this.tilePixels;
     const { width, height } = this.canvasDimensions;
     const { x, y } = this.cameraPosition;
     // Start from camera position to canvasDimension size
@@ -191,10 +211,9 @@ class Renderer {
     }
   };
 
-  renderGameUnits = () => {
-    const tilePixels = BASE_TILE_SIZE * this.zoomLevel;
+  private renderGameUnits = () => {
     for (const gameUnit of this.game.getGameUnits()) {
-      gameUnit.render(this.context, this.cameraPosition, tilePixels);
+      gameUnit.render(this.context, this.cameraPosition, this.tilePixels);
     }
   };
 }

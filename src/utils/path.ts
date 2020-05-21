@@ -15,8 +15,20 @@ const VALID_DIRECTIONS = [
 ];
 
 // Search heustic bias to diff against
+/**
+ * TODO fix this case
+ * path goes off to the left when there is a shorter path
+ * xxxoxxx
+ * ooo-|oo
+ * ooxx|xx
+ * xx|--oo
+ * oo|xooo
+ * oo|xooo
+ * oo--ooo
+ * oooxooo
+ */
 const searchHeuristic = (current: Coordinates, goal: Coordinates): number =>
-  Math.abs(current.x - goal.x) + Math.abs(current.y - goal.y);
+  Math.abs(current.x - goal.x) * 2 + current.y - goal.y;
 
 const _getValidMoves = (grid: Grid, position: Coordinates): Coordinates[] => {
   const validMoves = [];
