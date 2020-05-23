@@ -169,14 +169,11 @@ class Game {
 
   public handleClick = (blockCoordinates: Coordinates): string | null => {
     const { x, y } = blockCoordinates;
-    const currentBlock = this.getBlock(x, y);
-    if (currentBlock.state === GridState.InboundsPlaceable) {
-      try {
-        this.placeBlockAtLocation(x, y);
-        return null;
-      } catch (e) {
-        return "Unable to place block at that location";
-      }
+    try {
+      this.placeBlockAtLocation(x, y);
+      return null;
+    } catch (e) {
+      return "Unable to place block at that location";
     }
   };
 }

@@ -3,6 +3,7 @@ import Renderer, { ArrowKeysPressed } from "<src>/classes/Renderer";
 import { ZoomChange } from "<src>/enums";
 
 const setupEventListeners = (renderer: Renderer) => {
+  // TODO add event listeners onto the renderer canvas instead of the document
   document.addEventListener("click", (e: MouseEvent) => {
     const { clientX, clientY } = e;
     const target = e.target as Element;
