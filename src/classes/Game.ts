@@ -4,7 +4,7 @@ import {
   NUM_INITIAL_BLOCKS,
   MAX_RETRIES_BLOCK_PLACEMENT,
 } from "<src>/constants";
-import GameUnit from "<src>/classes/GameUnit";
+import GameUnit from "<src>/classes/abstract/GameUnit";
 import Runner from "<src>/classes/Runner";
 import { GridState } from "<src>/enums";
 import { getRandomNum, uuid4 } from "<src>/utils";
@@ -108,21 +108,21 @@ class Game {
     // TODO - add some probablity here of throwing an error
     // And tune retry amounts to this
     for (let n = 0; n < MAX_RETRIES_BLOCK_PLACEMENT; n++) {
-      // TODO - update this to use a more refined version for better
-      // spaced out blocks
+      // TODO - update this to use a more refined version for better spaced out blocks
       const { x, y } = this._getRandomBlockCoordinates();
       try {
         this.placeBlockAtLocation(x, y);
         return;
       } catch (e) {} // tslint:disable-line
     }
-    // TODO have better error handling here
+
     throw new Error(
       `Tried ${MAX_RETRIES_BLOCK_PLACEMENT} times to initialize board state`
     );
   };
 
   private _createInitialBlocks = () => {
+    // TODO have better error handling here (if failed to initialize)
     for (let i = 0; i < NUM_INITIAL_BLOCKS; i++) {
       this._placeRandomizedBlock();
     }
@@ -167,13 +167,16 @@ class Game {
     }
   }
 
-  public handleClick = (blockCoordinates: Coordinates) => {
+  public handleClick = (blockCoordinates: Coordinates): string | null => {
     const { x, y } = blockCoordinates;
-    // TODO add more game state flows
     const currentBlock = this.getBlock(x, y);
     if (currentBlock.state === GridState.InboundsPlaceable) {
-      // TODO add error handling
-      this.placeBlockAtLocation(x, y);
+      try {
+        this.placeBlockAtLocation(x, y);
+        return null;
+      } catch (e) {
+        return "Unable to place block at that location";
+      }
     }
   };
 }

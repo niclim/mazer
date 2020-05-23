@@ -102,7 +102,7 @@ describe("Renderer", () => {
       // TODO test centering camera on zoom on current location
     });
 
-    test("handleKeyScroll updates the coordinates if keys are pressed depending on dt", () => {
+    test("runCycle updates the coordinates if keys are pressed depending on dt", () => {
       // set to certain coordinates
       const initX = 0;
       const initY = 0;
@@ -118,7 +118,7 @@ describe("Renderer", () => {
 
       // takes in a dt which is related to the CAMERA_SPEED constant
       const dt = 0.01;
-      renderer.handleKeyScroll(dt);
+      renderer.runCycle(dt);
 
       expect(renderer.cameraPosition).toEqual({
         x: initX + dt * CAMERA_SPEED * renderer.zoomLevel,

@@ -7,8 +7,9 @@ import {
   MAX_ZOOM,
   MIN_ZOOM,
 } from "<src>/constants";
+import HudItem from "<src>/classes/abstract/HudItem";
 import Game from "<src>/classes/Game";
-import HudItem from "<src>/classes/HudItem";
+import Message from "<src>/classes/Message";
 import { Dimensions, Coordinates } from "<src>/types";
 import { GridState, ZoomChange } from "<src>/enums";
 
@@ -37,6 +38,7 @@ class Renderer {
   context: CanvasRenderingContext2D;
   zoomLevel: number;
   hudItems: HudItem[];
+  messages: Message[];
 
   constructor(game: Game) {
     this.game = game;
@@ -58,6 +60,7 @@ class Renderer {
     this.zoomLevel = INIT_ZOOM;
     // TODO initialize items here
     this.hudItems = [];
+    this.messages = [];
 
     // Center the camera in the middle of the container
     this.updateCameraPosition({
@@ -97,7 +100,16 @@ class Renderer {
       (clickLocation.y + this.cameraPosition.y) / this.tilePixels
     );
     // Should call game handle click at certain locations
-    this.game.handleClick({ x: xBlock, y: yBlock });
+    const message = this.game.handleClick({ x: xBlock, y: yBlock });
+
+    if (message) {
+      this.messages.push(
+        new Message(2, message, {
+          x: this.canvasDimensions.width / 2,
+          y: 50,
+        })
+      );
+    }
   };
 
   public windowResize = () => {
@@ -128,7 +140,7 @@ class Renderer {
     };
   };
 
-  public handleKeyScroll = (dt: number) => {
+  private handleKeyScroll = (dt: number) => {
     let dx = 0;
     let dy = 0;
     if (this.keysPressed.up) dy--;
@@ -142,6 +154,13 @@ class Renderer {
       const { x, y } = this.cameraPosition;
       this.updateCameraPosition({ x: x + dx, y: y + dy });
     }
+  };
+
+  public runCycle = (dt: number) => {
+    this.handleKeyScroll(dt);
+    // Handle message triggers
+    this.messages.forEach((message) => message.runCycle(dt));
+    this.messages = this.messages.filter((message) => !message.shouldDismiss());
   };
 
   public handleZoom = (zoomChange: ZoomChange) => {
@@ -174,6 +193,7 @@ class Renderer {
     // render the background
     this.renderBackground();
     this.renderGameUnits();
+    this.renderMessages();
   };
 
   private renderBackground = () => {
@@ -214,6 +234,12 @@ class Renderer {
   private renderGameUnits = () => {
     for (const gameUnit of this.game.getGameUnits()) {
       gameUnit.render(this.context, this.cameraPosition, this.tilePixels);
+    }
+  };
+
+  private renderMessages = () => {
+    for (const message of this.messages) {
+      message.render(this.context, this.cameraPosition, this.tilePixels);
     }
   };
 }

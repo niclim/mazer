@@ -4,7 +4,7 @@ import { RUNNER_SPEED } from "<src>/constants";
 import { Coordinates, Grid, Path } from "<src>/types";
 import { boundNumberToMinMax } from "<src>/utils";
 import { findPath } from "<src>/utils/path";
-import GameUnit from "<src>/classes/GameUnit";
+import GameUnit from "<src>/classes/abstract/GameUnit";
 
 export type CompletionFn = () => void;
 

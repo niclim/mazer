@@ -30,7 +30,7 @@ describe("Game", () => {
     expect(outOfBoundsBlockPositive).toEqual(expectedOutOfBounds);
   });
 
-  test("game unit interactions", () => {
+  test("game unit movement", () => {
     const gameUnitIterator1 = game.getGameUnits();
     // Should get the initially created runner
     // TODO update this test case to remove this when this create runner is moved to game state
@@ -56,5 +56,11 @@ describe("Game", () => {
     expect(gameUnitIterator2.next().done).toBeTruthy();
     expect(preMovePosition1).not.toEqual(runner1PostMove.getPosition());
     expect(preMovePosition2).not.toEqual(runner2PostMove.getPosition());
+  });
+
+  describe("handleClick", () => {
+    test("block placement", () => {
+      // todo
+    });
   });
 });
