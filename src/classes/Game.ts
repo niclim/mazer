@@ -4,7 +4,7 @@ import {
   NUM_INITIAL_BLOCKS,
   MAX_RETRIES_BLOCK_PLACEMENT,
 } from "<src>/constants";
-import GameUnit from "<src>/classes/GameUnit";
+import GameUnit from "<src>/classes/abstract/GameUnit";
 import Runner from "<src>/classes/Runner";
 import { GridState } from "<src>/enums";
 import { getRandomNum, uuid4 } from "<src>/utils";
@@ -83,37 +83,46 @@ class Game {
     };
   };
 
+  private setBlockState = (x: number, y: number, state: GridState) => {
+    this.grid[x][y] = {
+      ...this.grid[x][y],
+      state,
+    };
+  };
+
+  private placeBlockAtLocation = (x: number, y: number) => {
+    const originalState = this.grid[x][y].state;
+    if (originalState !== GridState.InboundsPlaceable) {
+      throw new Error("Invalid placement location");
+    }
+    this.setBlockState(x, y, GridState.Block);
+
+    // Validate block does not block a valid path
+    if (!hasValidPath(this.grid, this.start, this.end)) {
+      this.setBlockState(x, y, originalState);
+      throw new Error("No valid path");
+    }
+  };
+
   private _placeRandomizedBlock = () => {
     // TODO - add some probablity here of throwing an error
     // And tune retry amounts to this
     for (let n = 0; n < MAX_RETRIES_BLOCK_PLACEMENT; n++) {
-      // TODO - update this to use a more refined version for better
-      // spaced out blocks
+      // TODO - update this to use a more refined version for better spaced out blocks
       const { x, y } = this._getRandomBlockCoordinates();
-      if (this.grid[x][y].state === GridState.InboundsPlaceable) {
-        this.grid[x][y] = {
-          ...this.grid[x][y],
-          state: GridState.Block,
-        };
-
-        // Validate block does not block a valid path
-        if (hasValidPath(this.grid, this.start, this.end)) {
-          return;
-        } else {
-          this.grid[x][y] = {
-            ...this.grid[x][y],
-            state: GridState.InboundsPlaceable,
-          };
-        }
-      }
+      try {
+        this.placeBlockAtLocation(x, y);
+        return;
+      } catch (e) {} // tslint:disable-line
     }
-    // TODO have better error handling here
+
     throw new Error(
       `Tried ${MAX_RETRIES_BLOCK_PLACEMENT} times to initialize board state`
     );
   };
 
   private _createInitialBlocks = () => {
+    // TODO have better error handling here (if failed to initialize)
     for (let i = 0; i < NUM_INITIAL_BLOCKS; i++) {
       this._placeRandomizedBlock();
     }
@@ -157,6 +166,16 @@ class Game {
       yield unit;
     }
   }
+
+  public handleClick = (blockCoordinates: Coordinates): string | null => {
+    const { x, y } = blockCoordinates;
+    try {
+      this.placeBlockAtLocation(x, y);
+      return null;
+    } catch (e) {
+      return "Unable to place block at that location";
+    }
+  };
 }
 
 export default Game;

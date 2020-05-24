@@ -1,8 +1,6 @@
 import { Coordinates } from "<src>/types";
 
-export default abstract class GameUnit {
-  abstract runCycle(dt: number): void;
-
+export default abstract class Renderable {
   abstract render(
     context: CanvasRenderingContext2D,
     cameraPosition: Coordinates,

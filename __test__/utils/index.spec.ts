@@ -38,7 +38,7 @@ describe("utils", () => {
     jest.spyOn(global.Math, "random").mockReturnValue(0.2);
     expect(getRandomNum(10, 2)).toBe(3);
 
-    (global.Math.random as any).mockRestore();
+    (global.Math.random as jest.Mock).mockRestore();
   });
 
   test("isCoordSame", () => {

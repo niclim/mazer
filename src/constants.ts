@@ -6,6 +6,7 @@ export const BASE_TILE_SIZE = 25;
 export const MAX_ZOOM = 8;
 export const MIN_ZOOM = 1;
 export const INIT_ZOOM = 2;
+export const MESSAGE_FONT = "40pt Droid Sans";
 
 // Game related constants
 export const NUM_INITIAL_BLOCKS = 15;
